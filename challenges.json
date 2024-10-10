@@ -1,0 +1,260 @@
+[
+    {
+        "title": "Similar - Pair with Target Sum",
+        "description": "Given an array of integers nums and an integer target, find two indices such that the elements at those indices add up to the target value. Each input has exactly one solution, and you cannot use the same element twice. If no such pair exists, return an empty array.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Two-Pointers", "Hash Tables"]
+    },
+    {
+        "title": "Similar - Find Two Numbers Summing to Target",
+        "description": "Given an array of integers nums and a target value, return the indices of two elements whose sum equals the target. The same element cannot be used twice, and the array may contain negative integers. Return an empty array if no valid pair is found.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Hash Tables", "Two-Pointers"]
+    },
+    {
+        "title": "Similar - Target Sum Indices",
+        "description": "Given a list of integers and a target integer, find two distinct indices where the sum of the corresponding elements equals the target. The elements may include negative numbers, and the input array may have duplicate values. If no solution exists, return an empty list.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Two-Pointers", "Hash Tables"]
+    },
+    {
+        "title": "Somewhat - Three Sum",
+        "description": "Given an array of integers, find three distinct indices such that the sum of the elements at those indices equals a given target. The input array may contain both positive and negative numbers. If no valid triplet is found, return an empty array.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Two-Pointers", "Hash Tables"]
+    },
+    {
+        "title": "Somewhat - Pair with Given Difference",
+        "description": "Given an array of integers and an integer difference, find two indices such that the absolute difference between the elements at those indices equals the given value. The array may include negative numbers. Return an empty array if no solution is found.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Two-Pointers", "Hash Tables"]
+    },
+    {
+        "title": "Somewhat - Closest Pair to Target",
+        "description": "Given an array of integers and a target, find two distinct indices such that the sum of the elements is closest to the target value. The function should return the indices of the closest pair. If multiple pairs are equally close, return any one of them.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Two-Pointers", "Sorting"]
+    },
+    {
+        "title": "Somewhat - Find Pair with Product",
+        "description": "Given an array of integers and a target product, find two distinct elements whose product equals the target value. The elements should be located at different indices, and the input may contain zero or negative values. Return an empty array if no such pair exists.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Hash Tables", "Brute Force"]
+    },
+    {
+        "title": "Somewhat - Unique Pairs Adding Up to Target",
+        "description": "Given an array of integers and a target value, return all unique pairs of elements whose sum equals the target. Each pair should be represented as an array of two indices. Duplicate pairs should not be included in the output.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Hash Tables", "Sorting"]
+    },
+    {
+        "title": "Somewhat - Two Sum Closest",
+        "description": "Find two indices in a given array of integers such that their sum is closest to a target integer, but not necessarily equal. The input array may contain both positive and negative numbers. If multiple pairs have the same closest sum, return any one pair.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Sorting", "Greedy"]
+    },
+    {
+        "title": "Different - Longest Palindromic Substring",
+        "description": "Given a string s, find the longest palindromic substring in the string. The substring must read the same forward and backward. Consider edge cases such as a single-character string and repeated characters.",
+        "subject_tags": ["Algorithms", "Strings"],
+        "content_tags": ["Dynamic Programming", "String Manipulation", "Palindromes"]
+    },
+    {
+        "title": "Different - Minimum Path Sum in Grid",
+        "description": "Given a 2D grid filled with non-negative numbers, find a path from the top-left to the bottom-right that minimizes the sum of the numbers along the path. You can only move right or down.",
+        "subject_tags": ["Algorithms", "Dynamic Programming"],
+        "content_tags": ["Dynamic Programming", "2D Arrays", "Grid Traversal"]
+    },
+    {
+        "title": "Different - Find All Anagrams in a String",
+        "description": "Given two strings s and p, find all the start indices of p's anagrams in s. The function should return a list of starting indices. Consider edge cases like an empty string or when p is longer than s.",
+        "subject_tags": ["Algorithms", "Strings"],
+        "content_tags": ["Sliding Window", "Hash Tables", "String Matching"]
+    },
+    {
+        "title": "Different - Decode Ways",
+        "description": "Given a string containing only digits, determine the number of ways to decode it. Each digit or combination of two digits may represent a letter. The function should return the total number of possible decodings.",
+        "subject_tags": ["Algorithms", "Dynamic Programming"],
+        "content_tags": ["Dynamic Programming", "Strings", "Memoization"]
+    },
+    {
+        "title": "Different - Maximum Subarray",
+        "description": "Find the contiguous subarray within a one-dimensional array of numbers which has the largest sum. The input array may contain both positive and negative numbers.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Dynamic Programming", "Arrays", "Greedy Algorithms"]
+    },
+    {
+        "title": "Different - Merge Intervals",
+        "description": "Given an array of intervals where each interval is a pair of integers, merge all overlapping intervals and return an array of the merged intervals.",
+        "subject_tags": ["Algorithms", "Sorting"],
+        "content_tags": ["Intervals", "Arrays", "Sorting"]
+    },
+    {
+        "title": "Similar - Sum of Three Numbers Equals Target",
+        "description": "Given an array of integers, find three numbers such that the sum is equal to a given target. Return the indices of the three numbers if they exist, or an empty array if no valid triplet is found.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Three-Pointers", "Brute Force"]
+    },
+    {
+        "title": "Similar - Two Sum With Sorted Array",
+        "description": "Given a sorted array of integers and a target value, find two indices such that the elements at those indices add up to the target. The array is guaranteed to be sorted in ascending order.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Two-Pointers", "Binary Search"]
+    },
+    {
+        "title": "Similar - Pair Sum in Circular Array",
+        "description": "Given a circular array of integers and a target sum, find two distinct indices where the sum of the elements equals the target value. The array may wrap around, and the elements may include negative values.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Circular Arrays", "Hash Tables"]
+    },
+    {
+        "title": "Somewhat - Two Sum Without Duplicates",
+        "description": "Find two distinct indices in an array where the sum of the elements equals a given target, with the constraint that the same value cannot be used more than once even if it appears multiple times.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Hash Tables", "Two-Pointers"]
+    },
+    {
+        "title": "Different - Longest Consecutive Sequence",
+        "description": "Given an unsorted array of integers, find the length of the longest consecutive sequence. The sequence must be made up of numbers in ascending order without any gaps.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Hash Sets", "Arrays", "Sequences"]
+    },
+    {
+        "title": "Somewhat - Sum Closest to Target in Sorted Array",
+        "description": "Given a sorted array of integers, find two indices such that the sum of the elements is closest to a given target value. If multiple pairs are equally close, return any one.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Binary Search", "Sorting"]
+    },
+    {
+        "title": "Different - Find Peak Element",
+        "description": "Given an array of integers, find a peak element. An element is a peak if it is greater than its neighbors. The function should return the index of any peak element.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Binary Search", "Greedy Algorithms"]
+    },
+    {
+        "title": "Different - Count Inversions in Array",
+        "description": "Given an array of integers, count the number of inversions. An inversion occurs if a pair of elements is out of order. The function should return the total number of inversions.",
+        "subject_tags": ["Algorithms", "Sorting"],
+        "content_tags": ["Arrays", "Merge Sort", "Divide and Conquer"]
+    },
+    {
+        "title": "Different - Find Missing Number in Array",
+        "description": "Given an array containing n distinct numbers ranging from 0 to n, find the missing number. The function should return the number that is missing from the array.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Mathematics", "Bit Manipulation"]
+    },
+    {
+        "title": "Somewhat - Sum of All Pair Products",
+        "description": "Given an array of integers, find the sum of the products of all unique pairs. Each pair should consist of two different elements in the array, and the array may contain duplicate values.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Mathematics", "Brute Force"]
+    },
+    {
+        "title": "Different - Rotate Array by K Steps",
+        "description": "Given an array of integers, rotate the array to the right by k steps, where k is a non-negative integer. The elements that fall off the end of the array should appear at the beginning.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Cyclic Replacement", "Reverse"]
+    },
+    {
+        "title": "Different - Search in Rotated Sorted Array",
+        "description": "Given a rotated sorted array and a target value, search for the target in the array. The array was originally sorted in ascending order but has been rotated at an unknown pivot.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Binary Search", "Arrays", "Rotated Arrays"]
+    },
+    {
+        "title": "Different - Trap Rain Water",
+        "description": "Given an array of non-negative integers representing the height of bars, find the amount of rainwater that can be trapped after raining. The array represents a histogram where each bar's width is 1.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Two-Pointers", "Dynamic Programming"]
+    },
+    {
+        "title": "Different - Find Largest Rectangle in Histogram",
+        "description": "Given an array of integers representing heights of bars in a histogram, find the area of the largest rectangle that can be formed within the bounds of the histogram.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Stack", "Arrays", "Geometry"]
+    },
+    {
+        "title": "Similar - Two Sum Variants in Multiple Arrays",
+        "description": "Given two arrays of integers and a target value, find two elements, one from each array, whose sum equals the target. The elements should be from different arrays, and the arrays may contain negative numbers.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Hash Tables", "Two-Pointers"]
+    },
+    {
+        "title": "Somewhat - Sum Equals Target in Matrix",
+        "description": "Given a 2D matrix of integers and a target value, find two distinct elements in the matrix such that their sum equals the target. If no solution exists, return an empty array.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["2D Arrays", "Mathematics", "Hash Tables"]
+    },
+    {
+        "title": "Different - Zigzag Conversion",
+        "description": "Given a string s and a number of rows, convert the string to a zigzag pattern and return the result row by row. The string should be written out in a zigzag pattern.",
+        "subject_tags": ["Algorithms", "Strings"],
+        "content_tags": ["String Manipulation", "Mathematics", "Pattern Matching"]
+    },
+    {
+        "title": "Different - Basic Calculator",
+        "description": "Implement a basic calculator to evaluate a simple mathematical expression string. The expression may contain operators '+', '-', '*', '/' and parentheses.",
+        "subject_tags": ["Algorithms", "Mathematics"],
+        "content_tags": ["Stack", "Expression Parsing", "Mathematics"]
+    },
+    {
+        "title": "Different - Maximum Depth of Binary Tree",
+        "description": "Given a binary tree, find its maximum depth. The maximum depth is the number of nodes along the longest path from the root down to the farthest leaf node.",
+        "subject_tags": ["Algorithms", "Tree"],
+        "content_tags": ["Tree Traversal", "Recursion", "Depth-First Search"]
+    },
+    {
+        "title": "Different - Course Schedule",
+        "description": "There are a total of n courses to take, labeled from 0 to n-1. Some courses have prerequisites. Given a list of prerequisite pairs, find the order to take the courses to finish all of them.",
+        "subject_tags": ["Algorithms", "Graph Theory"],
+        "content_tags": ["Graph Traversal", "Topological Sort", "Recursion"]
+    },
+    {
+        "title": "Somewhat - Find Pair Sum in Sorted Matrix",
+        "description": "Given a sorted 2D matrix of integers and a target value, find two elements in different rows whose sum equals the target. The matrix is sorted in ascending order both row-wise and column-wise.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["2D Arrays", "Binary Search", "Mathematics"]
+    },
+    {
+        "title": "Similar - Target Sum Pair in Linked List",
+        "description": "Given a singly linked list and a target sum, find two distinct nodes in the list such that the sum of their values equals the target. The linked list may contain negative values.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Linked List", "Two-Pointers", "Hash Tables"]
+    },
+    {
+        "title": "Different - Longest Substring Without Repeating Characters",
+        "description": "Given a string s, find the length of the longest substring without repeating characters. The string may contain both uppercase and lowercase letters, spaces, and special characters.",
+        "subject_tags": ["Algorithms", "Strings"],
+        "content_tags": ["Sliding Window", "Hash Tables", "String Manipulation"]
+    },
+    {
+        "title": "Somewhat - Sum Pairs Divisible by K",
+        "description": "Given an array of integers and an integer k, find all pairs of elements in the array whose sum is divisible by k. Each pair should consist of two different elements in the array.",
+        "subject_tags": ["Algorithms", "Mathematics"],
+        "content_tags": ["Arrays", "Modulo Operation", "Mathematics"]
+    },
+    {
+        "title": "Different - Number of Islands",
+        "description": "Given a 2D grid map of '1's (land) and '0's (water), count the number of islands. An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically.",
+        "subject_tags": ["Algorithms", "Graph Theory"],
+        "content_tags": ["Graph Traversal", "Depth-First Search", "Breadth-First Search"]
+    },
+    {
+        "title": "Different - Knight's Shortest Path in Chessboard",
+        "description": "Given a chessboard, find the shortest path a knight can take from one position to another. The knight moves in an 'L' shape, two squares in one direction and then one square perpendicular.",
+        "subject_tags": ["Algorithms", "Graph Theory"],
+        "content_tags": ["Graph Traversal", "Breadth-First Search", "Shortest Path"]
+    },
+    {
+        "title": "Somewhat - Count Pairs with Absolute Difference K",
+        "description": "Given an array of integers and an integer k, count the number of pairs where the absolute difference between the elements equals k. Each pair should consist of two different elements.",
+        "subject_tags": ["Algorithms", "Mathematics"],
+        "content_tags": ["Arrays", "Two-Pointers", "Mathematics"]
+    },
+    {
+        "title": "Similar - Two Sum Variants in Multiple Lists",
+        "description": "Given two lists of integers and a target sum, find two elements, one from each list, whose sum equals the target. The elements should be from different lists, and the lists may contain negative numbers.",
+        "subject_tags": ["Algorithms", "Data Structures"],
+        "content_tags": ["Arrays", "Hash Tables", "Two-Pointers"]
+    }
+]

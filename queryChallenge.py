@@ -1,14 +1,19 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import dotenv from "dotenv";
+import os
+import google.generativeai as genai
 
-dotenv.config();
+# Load environment variables from a .env file
+from dotenv import load_dotenv
+load_dotenv()
 
-// Create a new instance of the GoogleGenerativeAI class
+# Create a new instance of the GoogleGenerativeAI class
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+# Get the generative model
+model = genai.GenerativeModel("gemini-1.5-pro")
 
-const prompt = `---
+# Define the prompt
+prompt = """
+---
 **Prompt:**
 
 Generate a coding challenge based on the following topics: [encryption, robotics, arrays]. Provide the output in the following format: 
@@ -17,7 +22,7 @@ Generate a coding challenge based on the following topics: [encryption, robotics
   "challenge_title": "Caesar Cipher Encryption",
   "problem_description": {
     "description": "Implement a function to encrypt a given text using the Caesar cipher algorithm.",
-    "input_format": "A string \`text\` representing the plaintext to be encrypted. An integer \`shift\` indicating the number of positions to shift the letters.",
+    "input_format": "A string `text` representing the plaintext to be encrypted. An integer `shift` indicating the number of positions to shift the letters.",
     "output_format": "A string representing the encrypted ciphertext.",
     "constraints": "The shift value will be in the range 0 to 25."
   },
@@ -48,9 +53,10 @@ Generate a coding challenge based on the following topics: [encryption, robotics
 }
 
 Ensure the output follows this structure exactly, providing an appropriate coding challenge, a skeleton code, and test cases based on the provided topic. Avoid unnecessary explanations and stick to this format strictly.
-`;
+"""
 
-const result = await model.generateContent(prompt);
-console.log(result.response.text());
+# Generate content using the model
+result = model.generate_content(prompt)
 
-
+# Print the result
+print(result.text)

@@ -1,6 +1,5 @@
 # spiderbyte-model
 
 TO RUN:<br>
-cd gemini-query<br>
-npm install<br>
-node .\queryLLM.js<br>
+Create a new Venv (CTRL+SHIFT+R > Python: Create Environment > Venv > Pick version > install requirements.txt<br>
+python llm_manager.py<br>
