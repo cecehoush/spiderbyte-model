@@ -9,8 +9,11 @@ def compute_similarity(input_title, input_description, challenges):
     # Combine input title and description
     input_text = preprocess(input_title + " " + input_description)
     
+    if(challenges == None):
+        return -1
+
     # Combine titles and descriptions for all challenges
-    texts = [preprocess(challenge["title"] + " " + challenge["description"]) for challenge in challenges]
+    texts = [preprocess(challenge["challenge_title"] + " " + " ".join(challenge["challenge_description"].values())) for challenge in challenges]
     
     # Load the pre-trained model
     model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -31,9 +34,10 @@ def compute_similarity(input_title, input_description, challenges):
     # Print the similarity scores
     print("Similarity scores between the input challenge and each of the challenges in the JSON file:")
     for idx, score in similarity_scores:
-        challenge_title = challenges[idx]["title"]
+        challenge_title = challenges[idx]["challenge_title"]
         print(f"Challenge {idx + 1}: {challenge_title} - Similarity Score: {score:.4f}")
 
+'''
 # Load the challenges from the JSON file
 with open('challenges.json', 'r', encoding='utf-8') as f:
     challenges = json.load(f)
@@ -48,3 +52,4 @@ input_description = """Given an array of integers nums and an integer target, re
 
 # Compute similarity
 compute_similarity(input_title, input_description, challenges)
+'''
