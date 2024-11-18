@@ -24,15 +24,7 @@ def fetch_challenges():
         print("Failed to fetch challenges.")
         return []
 
-def find_matching_challenges(user_tags, challenges):
-    matching_challenge_names = []
-    for challenge in challenges:
-        challenge_tags = challenge.get("content_tags", [])
-        if any(tag in user_tags for tag in challenge_tags):
-            matching_challenge_names.append(challenge["challenge_title"])
-    return matching_challenge_names
-
-def generate_prompt(subject_tags, content_tags, difficulty, matching_challenge_names, challenge_titles):
+def generate_prompt(subject_tags, content_tags, difficulty, challenge_titles):
     prompt = f"""
     ---
     **Prompt:**
@@ -81,7 +73,7 @@ def generate_prompt(subject_tags, content_tags, difficulty, matching_challenge_n
     DO NOT GENERATE ANY OPEN STRINGS. ALWAYS MAKE SURE THE OPEN STRING IS CLOSED. ALWAYS MAKE SURE THE OPEN QUOATION MARK IS CLOSED.
     DO NOT GENERATE THE SAME CHALLENGE TWICE. IF YOU NEED TO REGENERATE, CHANGE THE TOPICS OR THE CHALLENGE TITLE.
     DO NOT GENEREATE ANY CHALLENGES THAT ARE SIMILAR TO THE NAMES OF THESE CODING CHALLENGES:
-    {','.join(matching_challenge_names + challenge_titles)}
+    {','.join(challenge_titles)}
     """
     return prompt
 
@@ -105,19 +97,31 @@ def parse_generated_challenge(result_text):
 def compute_similarity(challenge_title, challenge_description, challenges):
     return llm_manager.compute_similarity(challenge_title, challenge_description, challenges)
 
-def validate_and_post_challenge(parsed_result, similarity_score, url):
-    if not similarity_score:
-        print("No challenges to compare to.")
-    elif isinstance(similarity_score, list) and all(isinstance(i, list) for i in similarity_score):
-        if similarity_score[0][1] > 0.65:
-            print("Challenge is similar to existing challenges.")
-            return -1
-        else:
-            print("Challenge is not similar to existing challenges.")
-            postResponse = requests.post(url + "/challenges", json=parsed_result)
-            print(f"Post Response Status Code: {postResponse.status_code}")
-    else:
-        print("Invalid similarity score format.")
+def validate_challenge_similarity(similarity_scores):
+    """
+    Checks if a challenge is too similar to existing ones.
+    
+    Args:
+        similarity_scores: List of dictionaries containing similarity information
+    
+    Returns:
+        str or bool: Returns the similar challenge title if similarity > 0.65,
+                    True if challenge is unique enough
+    """
+    try:
+        if not similarity_scores:
+            return True
+
+        # Get the highest similarity score
+        highest_similarity = max(score['similarity_score'] for score in similarity_scores)
+        most_similar_challenge = next(score for score in similarity_scores 
+                                    if score['similarity_score'] == highest_similarity)
+
+        # Return challenge title if above threshold, True otherwise
+        return most_similar_challenge['challenge_title'] if highest_similarity > 0.65 else True
+
+    except Exception as e:
+        raise Exception(f"Error in validation: {str(e)}")
 
 def generate_solution(challenge_title, challenge_description):
     newPrompt = f"""
@@ -206,67 +210,89 @@ def check_submission_status(challenge_title):
         print(f"Error during status check: {e}")
     return False
 
+def get_challenge():
+    try:
+        user_id = "user_id"
+        content_tags = []
+        subject_tags = ["Algorithms"]
+        difficulty = 1
+        challenges = fetch_challenges()
+
+        challenge_titles = [challenge["challenge_title"] for challenge in challenges]
+        additional_challenges = [
+            "Implement a Stack", "Implement a Queue", "Implement a Binary Search Tree",
+            "Implement a Hash Table", "Implement a Trie", "Implement a Graph",
+            "Implement a Linked List", "Implement a Doubly Linked List",
+            "Implement a Circular Linked List", "Implement a Priority Queue",
+            "Implement a Heap", "Implement a Binary Search", "Implement a Breadth-First Search",
+            "Implement a Depth-First Search", "Implement Dijkstra's Algorithm",
+            "Implement Bellman-Ford Algorithm", "Implement Floyd-Warshall Algorithm",
+            "Implement Prim's Algorithm", "Implement Kruskal's Algorithm",
+            "Implement Topological Sort", "Implement a Segment Tree",
+            "Implement a Fenwick Tree", "Implement an AVL Tree",
+            "Implement a Red-Black Tree", "Implement a B-Tree", "Implement a B+ Tree",
+            "Implement a Skip List", "Implement a Bloom Filter",
+            "Implement an LRU Cache", "Implement an LFU Cache",
+            "Implement a MinHeap", "Implement a MaxHeap", "Implement a MinStack",
+            "Implement a MaxStack", "Implement a MinQueue", "Implement a MaxQueue",
+            "Implement a MinPriorityQueue", "Implement a MaxPriorityQueue", "LRU CACHE"
+        ]
+        challenge_titles.extend(additional_challenges)
+        challenge_titles = list(set(challenge_titles))
+
+        prompt = generate_prompt(subject_tags, content_tags, difficulty, challenge_titles)
+        result_text = generate_challenge(prompt)
+        parsed_result = parse_generated_challenge(result_text)
+
+        if parsed_result:
+            challenge_title = parsed_result["challenge_title"]
+            challenge_description = parsed_result["challenge_description"]["description"]
+            similarity_score = compute_similarity(challenge_title, challenge_description, challenges)
+            similar_question = validate_challenge_similarity(similarity_score)
+            if similar_question != True:
+                print(f'similar question {similar_question}')
+                return False
+
+            aisolution = generate_solution(challenge_title, challenge_description)
+            validate_solution(aisolution, parsed_result, challenge_title)
+            
+            time.sleep(5)
+            counter = 0
+            while counter < 4:
+                if check_submission_status(challenge_title):
+                    subjects = subject_tags
+                    jsonPut = {
+                        "subjects": subjects,
+                        "challenge_title": challenge_title
+                    }
+                    print(f"JSON {jsonPut}")
+                    print(f'Parsed Result: {parsed_result}')
+                    postResponse = requests.post("http://localhost:5000/api/challenges", json=parsed_result, timeout=10)
+                    print(f"Challenge posted successfully with valid solution {postResponse}")
+
+                    assign_response = requests.put("http://localhost:5000/api/subjects/assignQuestionToSubjects", json=jsonPut, timeout=10)
+                    print(f"Assign Response Status Code: {assign_response.status_code}")
+                    print(f"Assign Response Content: {assign_response.content}")
+                    break
+                else:
+                    counter = counter + 1
+            if(counter > 4):
+                return False
+
+        return True
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
+
+
 def main():
-    user_id = "user_id"
-    content_tags = []
-    subject_tags = ["Data Structures"]
-    difficulty = 1
-    challenges = fetch_challenges()
-    matching_challenge_names = find_matching_challenges(content_tags, challenges)
-    print("matching challenge names:", matching_challenge_names)
-
-    challenge_titles = [challenge["challenge_title"] for challenge in challenges]
-    additional_challenges = [
-        "Implement a Stack", "Implement a Queue", "Implement a Binary Search Tree",
-        "Implement a Hash Table", "Implement a Trie", "Implement a Graph",
-        "Implement a Linked List", "Implement a Doubly Linked List",
-        "Implement a Circular Linked List", "Implement a Priority Queue",
-        "Implement a Heap", "Implement a Binary Search", "Implement a Breadth-First Search",
-        "Implement a Depth-First Search", "Implement Dijkstra's Algorithm",
-        "Implement Bellman-Ford Algorithm", "Implement Floyd-Warshall Algorithm",
-        "Implement Prim's Algorithm", "Implement Kruskal's Algorithm",
-        "Implement Topological Sort", "Implement a Segment Tree",
-        "Implement a Fenwick Tree", "Implement an AVL Tree",
-        "Implement a Red-Black Tree", "Implement a B-Tree", "Implement a B+ Tree",
-        "Implement a Skip List", "Implement a Bloom Filter",
-        "Implement an LRU Cache", "Implement an LFU Cache",
-        "Implement a MinHeap", "Implement a MaxHeap", "Implement a MinStack",
-        "Implement a MaxStack", "Implement a MinQueue", "Implement a MaxQueue",
-        "Implement a MinPriorityQueue", "Implement a MaxPriorityQueue"
-    ]
-    challenge_titles.extend(additional_challenges)
-    challenge_titles = list(set(challenge_titles))
-
-    prompt = generate_prompt(subject_tags, content_tags, difficulty, matching_challenge_names, challenge_titles)
-    result_text = generate_challenge(prompt)
-    parsed_result = parse_generated_challenge(result_text)
-
-    if parsed_result:
-        challenge_title = parsed_result["challenge_title"]
-        challenge_description = parsed_result["challenge_description"]["description"]
-        similarity_score = compute_similarity(challenge_title, challenge_description, challenges)
-        if validate_and_post_challenge(parsed_result, similarity_score, url) == -1:
-            return
-
-        aisolution = generate_solution(challenge_title, challenge_description)
-        validate_solution(aisolution, parsed_result, challenge_title)
-
-        time.sleep(2)
-        if check_submission_status(challenge_title):
-            subjects = subject_tags
-            jsonPut = {
-                "subjects": subjects,
-                "challenge_title": challenge_title
-            }
-            print(f"JSON {jsonPut}")
-            postResponse = requests.post("http://localhost:5000/api/challenges", json=parsed_result, timeout=10)
-            print(f"Challenge posted successfully with valid solution {postResponse}")
-
-            assign_response = requests.put("http://localhost:5000/api/subjects/assignQuestionToSubjects", json=jsonPut, timeout=10)
-            print(f"Assign Response Status Code: {assign_response.status_code}")
-            print(f"Assign Response Content: {assign_response.content}")
-          
-
+    counter = 0
+    while counter < 4:
+        if get_challenge() == False:
+            counter = counter + 1
+        else:
+            break
+    return
 
 if __name__ == "__main__":
     main()

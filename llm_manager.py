@@ -32,10 +32,17 @@ def compute_similarity(input_title, input_description, challenges):
     similarity_scores.sort(key=lambda x: x[1], reverse=True)
     
     # Print the similarity scores
-    print("Similarity scores between the input challenge and each of the challenges in the JSON file:")
+    similarity_results = []
     for idx, score in similarity_scores:
         challenge_title = challenges[idx]["challenge_title"]
-        print(f"Challenge {idx + 1}: {challenge_title} - Similarity Score: {score:.4f}")
+        similarity_results.append({
+            "challenge_index": idx + 1,
+            "challenge_title": challenge_title,
+            "similarity_score": score
+        })
+    
+    print(f'Similarity scores{similarity_results}')
+    return similarity_results
 
 '''
 # Load the challenges from the JSON file
