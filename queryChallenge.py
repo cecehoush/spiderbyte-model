@@ -5,6 +5,7 @@ import requests
 import google.generativeai as genai
 import llm_manager
 import re
+import pika
 from dotenv import load_dotenv
 
 # Load environment variables from a .env file
@@ -32,6 +33,9 @@ def generate_prompt(subject_tags, content_tags, difficulty, challenge_titles):
     Generate a coding challenge based on the following topics: {', '.join(content_tags)}. It needs to be a part of these Subject: {subject_tags}. 
     It should be a difficulty {difficulty} out of 10.
     Provide the output in the following format: 
+    
+    The first function call will be called to validate the code is validate. IF EXTRA FUNCTIONS ARE NEEDED PUT THEM BELOW THE FIRST FUNCTION.
+
     Add a short concise story no longer than 4 sentences to help explain the challenge to the reader. Assign a relative difficulty from 1-10 DO NOT EXCEED 10 DO NOT GO BELOW 1. Provide a list of hints to help guide the reader to the solution. Include a skeleton code snippet in PYTHON ONLY. Finally, provide a list of test cases to validate the solution.
     {{
       "challenge_title": "Caesar Cipher Encryption",
@@ -212,12 +216,30 @@ def check_submission_status(challenge_title):
 
 def get_challenge():
     try:
-        user_id = "user_id"
-        content_tags = []
-        subject_tags = ["Algorithms"]
-        difficulty = 1
-        challenges = fetch_challenges()
+        # Connect to RabbitMQ
+        connection_params = pika.ConnectionParameters(host="localhost")
+        connection = pika.BlockingConnection(connection_params)
+        channel = connection.channel()
 
+        # Declare the queue (ensure it exists)
+        queue_name = "challenge_queue"
+        channel.queue_declare(queue=queue_name, durable=True)
+
+        # Consume a message from the queue
+        method_frame, properties, body = channel.basic_get(queue_name, auto_ack=True)
+
+        if not body:
+            print("No messages in the queue.")
+            connection.close()
+            return False
+        
+        message = json.loads(body)
+        subject_tags = message['subject_tags']
+        content_tags = message['content_tags']
+        difficulty = message['difficulty']
+
+        challenges = fetch_challenges()
+        
         challenge_titles = [challenge["challenge_title"] for challenge in challenges]
         additional_challenges = [
             "Implement a Stack", "Implement a Queue", "Implement a Binary Search Tree",
@@ -278,21 +300,128 @@ def get_challenge():
                     counter = counter + 1
             if(counter > 4):
                 return False
+            
+            # Publish the challenge title to the reply queue
+            if properties.reply_to:
+                response_message = challenge_title
+                channel.basic_publish(
+                    exchange='',
+                    routing_key=properties.reply_to,  # Send to the reply queue
+                    body=response_message,
+                    properties=pika.BasicProperties(correlation_id=properties.correlation_id)
+                )
+                print(f"Sent challenge: {response_message} to {properties.reply_to}")
 
-        return True
+        return parsed_result["challenge_title"]
     except Exception as e:
         print(f"An error occurred: {e}")
         return False
+    
+
+def get_challenge_callback(ch, method, properties, body):
+    try:
+        print("Received a message from RabbitMQ.")
+        message = json.loads(body)
+        print(f'Message body {message}')
+        subject_tags = message['subject_tags']
+        content_tags = message['content_tags']
+        difficulty = message['difficulty']
+
+        challenges = fetch_challenges()
+
+        challenge_titles = [challenge["challenge_title"] for challenge in challenges]
+        additional_challenges = [
+            "Implement a Stack", "Implement a Queue", "Implement a Binary Search Tree",
+            "Implement a Hash Table", "Implement a Trie", "Implement a Graph",
+        ]
+        challenge_titles.extend(additional_challenges)
+        challenge_titles = list(set(challenge_titles))
+
+        prompt = generate_prompt(subject_tags, content_tags, difficulty, challenge_titles)
+        result_text = generate_challenge(prompt)
+        parsed_result = parse_generated_challenge(result_text)
+
+        if parsed_result:
+            challenge_title = parsed_result["challenge_title"]
+            challenge_description = parsed_result["challenge_description"]["description"]
+            similarity_score = compute_similarity(challenge_title, challenge_description, challenges)
+            similar_question = validate_challenge_similarity(similarity_score)
+            if similar_question != True:
+                print(f'Similar question detected: {similar_question}')
+                return
+
+            aisolution = generate_solution(challenge_title, challenge_description)
+            validate_solution(aisolution, parsed_result, challenge_title)
+
+            time.sleep(5)
+            counter = 0
+            while counter < 4:
+                if check_submission_status(challenge_title):
+                    subjects = subject_tags
+                    jsonPut = {
+                        "subjects": subjects,
+                        "challenge_title": challenge_title
+                    }
+                    print(f"JSON {jsonPut}")
+                    print(f'Parsed Result: {parsed_result}')
+                    postResponse = requests.post("http://localhost:5000/api/challenges", json=parsed_result, timeout=10)
+                    print(f"Challenge posted successfully with valid solution {postResponse}")
+
+                    assign_response = requests.put("http://localhost:5000/api/subjects/assignQuestionToSubjects", json=jsonPut, timeout=10)
+                    print(f"Assign Response Status Code: {assign_response.status_code}")
+                    print(f"Assign Response Content: {assign_response.content}")
+                    break
+                else:
+                    counter += 1
+            if counter > 4:
+                print("Failed to find a valid solution after multiple attempts.")
+                return
+
+            # Publish the challenge title to the reply queue
+            if properties.reply_to:
+                response_message = challenge_title
+                ch.basic_publish(
+                    exchange='',
+                    routing_key=properties.reply_to,
+                    body=response_message,
+                    properties=pika.BasicProperties(correlation_id=properties.correlation_id)
+                )
+                print(f"Sent challenge title: {response_message} to {properties.reply_to}")
+
+    except Exception as e:
+        print(f"Error processing message: {e}")
+    finally:
+        ch.basic_ack(delivery_tag=method.delivery_tag)  # Acknowledge the message
 
 
 def main():
-    counter = 0
-    while counter < 4:
-        if get_challenge() == False:
-            counter = counter + 1
-        else:
-            break
-    return
+    try:
+        # Connect to RabbitMQ
+        connection_params = pika.ConnectionParameters(host="localhost")
+        connection = pika.BlockingConnection(connection_params)
+        channel = connection.channel()
+
+        # Declare the queue (ensure it exists)
+        queue_name = "challenge_queue"
+        channel.queue_declare(queue=queue_name, durable=True)
+
+        print(f"Listening for messages on queue: {queue_name}...")
+
+        # Start consuming messages
+        channel.basic_consume(
+            queue=queue_name,
+            on_message_callback=get_challenge_callback
+        )
+
+        # Keep the script running and listening for messages
+        channel.start_consuming()
+    except KeyboardInterrupt:
+        print("Interrupted by user, stopping...")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        if connection:
+            connection.close()
 
 if __name__ == "__main__":
     main()
