@@ -239,6 +239,15 @@ def get_challenge_callback(ch, method, properties, body):
         prompt = generate_prompt(subject_tags, content_tags, difficulty, challenge_titles)
         result_text = generate_challenge(prompt)
         parsed_result = parse_generated_challenge(result_text)
+        retry_count = 0
+        while parsed_result is None and retry_count < 3:
+            print("Parsed result is None, regenerating challenge.")
+            result_text = generate_challenge(prompt)
+            parsed_result = parse_generated_challenge(result_text)
+            retry_count += 1
+        if parsed_result is None:
+            print("Failed to generate a valid challenge after multiple attempts.")
+            return
 
         if parsed_result:
             challenge_title = parsed_result["challenge_title"]
