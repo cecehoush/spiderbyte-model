@@ -109,7 +109,7 @@ def validate_challenge_similarity(similarity_scores):
         similarity_scores: List of dictionaries containing similarity information
     
     Returns:
-        str or bool: Returns the similar challenge title if similarity > 0.65,
+        str or bool: Returns the similar challenge title if similarity > 0.63,
                     True if challenge is unique enough
     """
     try:
@@ -122,7 +122,7 @@ def validate_challenge_similarity(similarity_scores):
                                     if score['similarity_score'] == highest_similarity)
 
         # Return challenge title if above threshold, True otherwise
-        return most_similar_challenge['challenge_title'] if highest_similarity > 0.65 else True
+        return most_similar_challenge['challenge_title'] if highest_similarity > 0.63 else True
 
     except Exception as e:
         raise Exception(f"Error in validation: {str(e)}")
@@ -213,109 +213,6 @@ def check_submission_status(challenge_title):
     except requests.exceptions.RequestException as e:
         print(f"Error during status check: {e}")
     return False
-
-def get_challenge():
-    try:
-        # Connect to RabbitMQ
-        connection_params = pika.ConnectionParameters(host="localhost")
-        connection = pika.BlockingConnection(connection_params)
-        channel = connection.channel()
-
-        # Declare the queue (ensure it exists)
-        queue_name = "challenge_queue"
-        channel.queue_declare(queue=queue_name, durable=True)
-
-        # Consume a message from the queue
-        method_frame, properties, body = channel.basic_get(queue_name, auto_ack=True)
-
-        if not body:
-            print("No messages in the queue.")
-            connection.close()
-            return False
-        
-        message = json.loads(body)
-        subject_tags = message['subject_tags']
-        content_tags = message['content_tags']
-        difficulty = message['difficulty']
-
-        challenges = fetch_challenges()
-        
-        challenge_titles = [challenge["challenge_title"] for challenge in challenges]
-        additional_challenges = [
-            "Implement a Stack", "Implement a Queue", "Implement a Binary Search Tree",
-            "Implement a Hash Table", "Implement a Trie", "Implement a Graph",
-            "Implement a Linked List", "Implement a Doubly Linked List",
-            "Implement a Circular Linked List", "Implement a Priority Queue",
-            "Implement a Heap", "Implement a Binary Search", "Implement a Breadth-First Search",
-            "Implement a Depth-First Search", "Implement Dijkstra's Algorithm",
-            "Implement Bellman-Ford Algorithm", "Implement Floyd-Warshall Algorithm",
-            "Implement Prim's Algorithm", "Implement Kruskal's Algorithm",
-            "Implement Topological Sort", "Implement a Segment Tree",
-            "Implement a Fenwick Tree", "Implement an AVL Tree",
-            "Implement a Red-Black Tree", "Implement a B-Tree", "Implement a B+ Tree",
-            "Implement a Skip List", "Implement a Bloom Filter",
-            "Implement an LRU Cache", "Implement an LFU Cache",
-            "Implement a MinHeap", "Implement a MaxHeap", "Implement a MinStack",
-            "Implement a MaxStack", "Implement a MinQueue", "Implement a MaxQueue",
-            "Implement a MinPriorityQueue", "Implement a MaxPriorityQueue", "LRU CACHE"
-        ]
-        challenge_titles.extend(additional_challenges)
-        challenge_titles = list(set(challenge_titles))
-
-        prompt = generate_prompt(subject_tags, content_tags, difficulty, challenge_titles)
-        result_text = generate_challenge(prompt)
-        parsed_result = parse_generated_challenge(result_text)
-
-        if parsed_result:
-            challenge_title = parsed_result["challenge_title"]
-            challenge_description = parsed_result["challenge_description"]["description"]
-            similarity_score = compute_similarity(challenge_title, challenge_description, challenges)
-            similar_question = validate_challenge_similarity(similarity_score)
-            if similar_question != True:
-                print(f'similar question {similar_question}')
-                return False
-
-            aisolution = generate_solution(challenge_title, challenge_description)
-            validate_solution(aisolution, parsed_result, challenge_title)
-            
-            time.sleep(5)
-            counter = 0
-            while counter < 4:
-                if check_submission_status(challenge_title):
-                    subjects = subject_tags
-                    jsonPut = {
-                        "subjects": subjects,
-                        "challenge_title": challenge_title
-                    }
-                    print(f"JSON {jsonPut}")
-                    print(f'Parsed Result: {parsed_result}')
-                    postResponse = requests.post("http://localhost:5000/api/challenges", json=parsed_result, timeout=10)
-                    print(f"Challenge posted successfully with valid solution {postResponse}")
-
-                    assign_response = requests.put("http://localhost:5000/api/subjects/assignQuestionToSubjects", json=jsonPut, timeout=10)
-                    print(f"Assign Response Status Code: {assign_response.status_code}")
-                    print(f"Assign Response Content: {assign_response.content}")
-                    break
-                else:
-                    counter = counter + 1
-            if(counter > 4):
-                return False
-            
-            # Publish the challenge title to the reply queue
-            if properties.reply_to:
-                response_message = challenge_title
-                channel.basic_publish(
-                    exchange='',
-                    routing_key=properties.reply_to,  # Send to the reply queue
-                    body=response_message,
-                    properties=pika.BasicProperties(correlation_id=properties.correlation_id)
-                )
-                print(f"Sent challenge: {response_message} to {properties.reply_to}")
-
-        return parsed_result["challenge_title"]
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return False
     
 
 def get_challenge_callback(ch, method, properties, body):
@@ -328,6 +225,8 @@ def get_challenge_callback(ch, method, properties, body):
         difficulty = message['difficulty']
 
         challenges = fetch_challenges()
+        # sort challenges by subject tags, content tags, and difficulty
+        challenges = sorted(challenges, key=lambda x: (any(tag in x["content_tags"] for tag in content_tags), x["subject_tags"]))
 
         challenge_titles = [challenge["challenge_title"] for challenge in challenges]
         additional_challenges = [
@@ -348,6 +247,16 @@ def get_challenge_callback(ch, method, properties, body):
             similar_question = validate_challenge_similarity(similarity_score)
             if similar_question != True:
                 print(f'Similar question detected: {similar_question}')
+                # return the similar question found to the user here
+                response_message = f"{similar_question}"
+                ch.basic_publish(
+                    exchange='',
+                    routing_key=properties.reply_to,
+                    body=response_message,
+                    properties=pika.BasicProperties(correlation_id=properties.correlation_id)
+                )
+
+                print(f"Sent similar question notification: {response_message} to {properties.reply_to}")
                 return
 
             aisolution = generate_solution(challenge_title, challenge_description)
